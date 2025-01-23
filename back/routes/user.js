@@ -9,4 +9,4 @@ router.post('/login', login);
 router.put('/:id', update);
 router.delete('/:id', deleteUser);
 
-model.exports = router;
+module.exports = router;

@@ -1,16 +1,28 @@
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
 require('dotenv').config();
 
-
-const router = express.Router();
-
 // Registro de usuario
 const register = async (req, res) => {
     try {
         const { name, email, password, profileImageUrl } = req.body;
+        if (!name || !email || !password) {
+            return res.status(400).json({ error: 'Por favor, complete todos los campos' });
+        }
+        if (password.length < 8) {
+            return res.status(400).json({ error: 'La contraseña debe tener al menos 8 caracteres' });
+        }
+        if (typeof password !== 'string'){
+            return res.status(400).json({ error: 'La contraseña debe ser contener caracteres' });
+        }
+        if(!email.includes('@')){
+            return res.status(400).json({ error: 'Ingresa un correo válido' });
+        }
+        if(!User.findOne({ email })){
+            return res.status(400).json({ error: 'El correo ya se encuentra registrado' });
+        }
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = new User({ name, email, password: hashedPassword, profileImageUrl });
         await newUser.save();
@@ -49,7 +61,7 @@ const update = async (req, res) => {
             { name, email, password: hashedPassword, profileImageUrl },
             { new: true }
         );
-        res.json(updatedUser);
+        res.json({ message: 'Usuario actualizado correctamente', name });
     } catch (error) {
         res.status(500).json({ error: 'Error al actualizar el usuario' });
     }
