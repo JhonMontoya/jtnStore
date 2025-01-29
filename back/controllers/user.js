@@ -7,21 +7,26 @@ require('dotenv').config();
 // Registro de usuario
 const register = async (req, res) => {
     try {
-        const { name, email, password, profileImageUrl } = req.body;
+        let { name, email, password, profileImageUrl } = req.body;
         if (!name) {
             return res.status(400).json({ error: 'Por favor, ingrese un nombre de usuario' });
         }
-        if(!profileImageUrl)
-            profileImageUrl = 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';
-        validation.password(password);
-        validation.email(email);        
-        if(!User.findOne({ email })){
+        const passwordError = validation.password(password);
+        const emailError = validation.email(email);
+        if (passwordError) {
+            return res.status(400).json({ error: passwordError });
+        }
+        if (emailError) {
+            return res.status(400).json({ error: emailError });
+        }
+        if(await User.findOne({ email })){
             return res.status(400).json({ error: 'El correo ya se encuentra registrado' });
         }
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = new User({ name, email, password: hashedPassword, profileImageUrl });
         await newUser.save();
-        res.status(201).json({ message: 'Usuario registrado correctamente'});
+        const token = jwt.sign({name: newUser.name, email: newUser.email, profileImageUrl: newUser.profileImageUrl}, process.env.JWT_SECRET, { expiresIn: '1h' });
+        res.status(201).json({ message: 'Usuario registrado correctamente', token });
     } catch (error) {
         res.status(500).json({ error: 'Ha ocurrido un error al registrar el usuario'});
     }
@@ -31,8 +36,14 @@ const register = async (req, res) => {
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
-        validation.email(email);
-        validation.password(password);
+        const emailError = validation.email(email);
+        const passwordError = validation.password(password);
+        if (emailError) {
+            return res.status(400).json({ error: emailError });
+        }
+        if (passwordError) {
+            return res.status(400).json({ error: passwordError });
+        }
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(400).json({ error: 'Usuario no encontrado' });
@@ -41,7 +52,7 @@ const login = async (req, res) => {
         if (!isPasswordValid) {
             return res.status(400).json({ error: 'La contraseña o el correo ingresado no es válido' });
         }
-        const token = jwt.sign({ userId: user._id, username : user.name}, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({name: user.name, email: user.email, profileImageUrl: user.profileImageUrl}, process.env.JWT_SECRET, { expiresIn: '1h' });
         res.json({ token });
     } catch (error) {
         res.status(500).json({ error: 'Error al iniciar sección' });
@@ -67,7 +78,10 @@ const update = async (req, res) => {
 // Eliminación de usuario
 const deleteUser = async (req, res) => {
     try {
-        validation.email(req.body.email);
+        const emailError = validation.email(req.body.email);
+        if (emailError) {
+            return res.status(400).json({ error: emailError });
+        }
         await User.findByOneAndDelete(req.body.email);        
         res.json({ message: 'Usuario eliminado correctamente' });
     } catch (error) {

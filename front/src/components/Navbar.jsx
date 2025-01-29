@@ -1,116 +1,135 @@
-import React from 'react';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
-import Container from '@mui/material/Container';
-import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
-import Avatar from '@mui/material/Avatar';
-import MenuIcon from '@mui/icons-material/Menu';
-import Logo from '../assets/LogoMenu.svg';
+import { useState } from "react";
+import PropTypes from 'prop-types';
+import { AppBar, Box, Toolbar, Tooltip, Container, IconButton, Typography, Avatar, Menu, MenuItem, Button } from "@mui/material";
+import { deepOrange } from "@mui/material/colors";
+import AccountBoxIcon from '@mui/icons-material/AccountBox';
+import Logo from "../assets/LogoMenu.svg";
+import { jwtDecode } from "jwt-decode";
+import {useNavigate} from 'react-router-dom';
 
-const pages = ['Productos', 'Acerca de nosotros'];
-const settings = ['Mi perfil', 'Cerrar sesión'];
+export default function Navbar() {
 
-export default function ResponsiveAppBar() {
-  const [anchorElUser, setAnchorElUser] = React.useState(null);
-  const [login, setLogin] = React.useState(false);
-
-  const handleOpenUserMenu = (event) => {
-    setAnchorElUser(event.currentTarget);
-  };
-
-  const handleCloseUserMenu = () => {
-    setAnchorElUser(null);
-  };
+  const [anchorEl, setAnchorEl] = useState(null);
+  const token = localStorage.getItem('token');
+  const User = token ? jwtDecode(token) : null;
+  const navigate = useNavigate();
 
   const handleLogin = () => {
-    setLogin(!login);
+    localStorage.removeItem('token');
+    navigate('/', {replace: true});
+    window.location.reload();
   };
+
+  const handleClose = () =>{
+    setAnchorEl(null);
+  };
+
+  
 
   return (
     <AppBar position="static">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <img
-            src={Logo}
-            alt="Logo"
-            style={{
-              display: { xs: 'none', md: 'flex' },
-              height: '50px',
-              width: '50px',
-              marginRight: '10px',
-            }}
-          />
-          <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
-            <IconButton
-              size="large"
-              aria-label="account of current user"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              color="inherit"
-            >
-              <MenuIcon />
-            </IconButton>
+          <Box sx={{ display: "flex", alignItems: "center", flexGrow: 0.01 }}>
+            <img src={Logo} alt="Logo" width="50" height="50" />
+            <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+              Store
+            </Typography>
           </Box>
-          {login ? (
-            <>
-              <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-                {pages.map((page) => (
-                  <Button
-                    key={page}
-                    sx={{ my: 2, color: 'white', display: 'block' }}
-                  >
-                    {page}
-                  </Button>
-                ))}
-              </Box>
-              <Box sx={{ flexGrow: 0 }}>
-                <Tooltip title="Open settings">
-                  <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                    <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
-                  </IconButton>
-                </Tooltip>
-                <Menu
-                  sx={{ mt: '45px' }}
-                  id="menu-appbar"
-                  anchorEl={anchorElUser}
-                  anchorOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
-                  }}
-                  keepMounted
-                  transformOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
-                  }}
-                  open={Boolean(anchorElUser)}
-                  onClose={handleCloseUserMenu}
-                >
-                  {settings.map((setting) => (
-                    <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                      <Typography sx={{ textAlign: 'center' }}>{setting}</Typography>
-                    </MenuItem>
-                  ))}
-                </Menu>
-              </Box>
-            </>
-          ) : (
-            <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'flex-end' }}>
-              <Button
-                onClick={handleLogin}
-                sx={{ my: 2, color: 'white', display: 'block' }}
+
+          {User == null ? (
+            <Box sx={{flexGrow: 1, display: "flex", justifyContent: "flex-end"}}>
+              <Button 
+              variant="contained"
+              color="primary"
+              href="/login"
+              endIcon={<AccountBoxIcon/>}
               >
-                Acceder / Crear Usuario
+              Ingresar
               </Button>
             </Box>
-          )}
+          ):(
+            <>
+            <Box sx={{ display: "flex", flexGrow: 0 }}>
+              <Button
+                  key="products"
+                  href="/products"
+                  sx={{ my: 2, color: 'white', display: 'block', textDecoration: 'underline' }}
+              >
+                Productos
+              </Button>
+              
+            </Box>
+            <Box sx={{flexGrow: 1, display: "flex", justifyContent: "flex-end"}}>
+              <Tooltip title = "setting user">
+                <IconButton sx={{p:0}} onClick={(e) => setAnchorEl(e.currentTarget)}>
+                  {User.profileImageUrl  ? (
+                    <Avatar src={User.profileImageUrl} alt={User.name} />
+                  ):(
+                    <Avatar {...stringAvatar(User.name)} alt={User.name} sx={{bgcolor: deepOrange[500]}}/>
+                  )}
+                </IconButton>
+              </Tooltip>
+              <Menu
+                sx={{ mt: '45px' }}
+                id="menu-user"
+                anchorEl={anchorEl}
+                anchorOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                open={Boolean(anchorEl)}
+                onClose={handleClose}
+              >
+                <MenuItem onClick={handleClose}>Mi perfil</MenuItem>
+                <MenuItem onClick={handleLogin}>Salir</MenuItem>
+              </Menu>
+            </Box>
+            </>
+            )}
         </Toolbar>
       </Container>
     </AppBar>
   );
+};
+
+Navbar.propTypes = {
+  User: PropTypes.shape({
+    name: PropTypes.string,
+    profileImageURL: PropTypes.string,
+  }),
+};
+
+
+function stringToColor(string) {
+  let hash = 0;
+  let i;
+
+  for (i = 0; i < string.length; i += 1) {
+    hash = string.charCodeAt(i) + ((hash << 5) - hash);
+  }
+
+  let color = '#';
+
+  for (i = 0; i < 3; i += 1) {
+    const value = (hash >> (i * 8)) & 0xff;
+    color += `00${value.toString(16)}`.slice(-2);
+  }
+
+  return color;
+}
+
+function stringAvatar(name) {
+  const nameParts = name.split(' ');
+  return {
+    sx: {
+      bgcolor: stringToColor(name),
+    },
+    children: `${nameParts[0][0]}${nameParts[1] ? nameParts[1][0] : ''}`,
+  };
 }

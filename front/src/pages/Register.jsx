@@ -1,8 +1,12 @@
 import { useState } from "react";
-import {Box, Button, TextField, Typography} from '@mui/material';
+import {Box, Button, IconButton, TextField, Typography, InputAdornment} from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import {Link, useNavigate} from 'react-router-dom';
+import axios from 'axios';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import {Link} from 'react-router-dom';
+import HomeIcon from '@mui/icons-material/Home';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 const theme = createTheme({
     components: {
@@ -35,9 +39,32 @@ const theme = createTheme({
 
 export default function Register() {
     const [data, setData] = useState({name: '', email: '', password: '', profileImageURL: ''});
+    const [showPassword, setShowPassword] = useState(false);
+    const navigate = useNavigate();
 
     function handleData(e) {
-        setData({ ...data, name: e.target.value });
+        const { id, value } = e.target;
+        setData({ ...data, [id]: value });
+    }
+    const handleClickShowPassword = () => {
+      setShowPassword(!showPassword);
+    };
+
+    const handleRegister = () => {
+      axios.post('http://localhost:3000/usuario/register', data)
+      .then((response) => {
+        alert(response.data.message);
+        localStorage.setItem('token', response.data.token);
+        navigate('/');
+      })
+      .catch((error) => {
+        console.error(error);
+        if (error.response && error.response.data && error.response.data.error) {
+            alert(error.response.data.error);
+        } else {
+            alert('Error al registrar el usuario');
+        }
+    });
     }
 
     return(
@@ -71,6 +98,11 @@ export default function Register() {
                         fontWeight: 'bold',
                         fontFamily: 'Comic Sans MS',
                     }}>
+                        <Link to="/" >
+                          <IconButton arial-label="Inicio" size="Large" sx={{marginRight: '10px'}}>
+                            <HomeIcon sx={{color: 'white'}} />  
+                          </IconButton>
+                        </Link>
                         Registro de usuario
                     </Typography>
                     <TextField
@@ -91,8 +123,25 @@ export default function Register() {
                         id="password"
                         label="Contraseña"
                         variant="outlined"
+                        type={showPassword ? 'text' : 'password'}
                         value={data.password}
                         onChange={handleData}
+                        slotProps={{
+                          input: {
+                            endAdornment: (
+                              <InputAdornment position="end">
+                                <IconButton
+                                  onClick={handleClickShowPassword}
+                                  sx={{color: 'white'}}
+                                  edge="end"
+                                  size="small"
+                                >
+                                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                                </IconButton>
+                              </InputAdornment>
+                            ),
+                          },
+                        }}
                     />
                     <TextField
                         id="profileImageURL"
@@ -101,7 +150,15 @@ export default function Register() {
                         value={data.profileImageURL}
                         onChange={handleData}
                     />
-                    <Button variant="contained" color = "primary" endIcon = {<PersonAddIcon sx= {{ml: 2}}/>} fullWidth>Registrarse</Button>
+                    <Button 
+                      variant="contained"
+                      color = "primary"
+                      endIcon = {<PersonAddIcon sx= {{ml: 2}}/>}
+                      fullWidth
+                      onClick = {handleRegister}
+                      >
+                        Registrarse
+                      </Button>
                     <Typography variant="body2" sx={{
                         color: 'white',
                         textAlign: 'center',

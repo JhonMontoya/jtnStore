@@ -24,5 +24,5 @@ app.use('/usuario', routerUser);
 app.use('/producto', routerProduct);
 
 server.listen(process.env.PORT, () => {
-    console.log(`Servidor corriendo en http:/localhost:${process.env.PORT}`);
+    console.log(`Servidor corriendo en http://localhost:${process.env.PORT}`);
 });
