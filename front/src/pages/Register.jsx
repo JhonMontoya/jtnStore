@@ -38,7 +38,7 @@ const theme = createTheme({
   
 
 export default function Register() {
-    const [data, setData] = useState({name: '', email: '', password: '', profileImageURL: ''});
+    const [data, setData] = useState({name: '', email: '', password: '', profileImageUrl: ""});
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
 
@@ -51,7 +51,7 @@ export default function Register() {
     };
 
     const handleRegister = () => {
-      axios.post('http://localhost:3000/usuario/register', data)
+      axios.post('http://localhost:3000/usuarios/register', data)
       .then((response) => {
         alert(response.data.message);
         localStorage.setItem('token', response.data.token);
@@ -105,21 +105,21 @@ export default function Register() {
                         </Link>
                         Registro de usuario
                     </Typography>
-                    <TextField
+                    <TextField required
                         id="name"
                         label="Nombre"
                         variant="outlined"
                         value={data.name}
                         onChange={handleData}
                     />
-                    <TextField
+                    <TextField required
                         id="email"
                         label="Correo"
                         variant="outlined"
                         value={data.email}
                         onChange={handleData}
                     />
-                    <TextField
+                    <TextField required
                         id="password"
                         label="Contraseña"
                         variant="outlined"
@@ -144,10 +144,10 @@ export default function Register() {
                         }}
                     />
                     <TextField
-                        id="profileImageURL"
+                        id="profileImageUrl"
                         label="URL de imagen de perfil"
                         variant="outlined"
-                        value={data.profileImageURL}
+                        value={data.profileImageUrl}
                         onChange={handleData}
                     />
                     <Button 

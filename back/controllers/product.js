@@ -1,14 +1,14 @@
-const Prduct = require('../models/product');
+const Product = require('../models/product');
 
 //Crear productos
 const createProduct = async (req, res) => {
     try {
-        const { name, description, price, category, stock, imageUrl } = req.body;
-        const newProduct = new Prduct({ name, description, price, category, stock, imageUrl });
+        let { name, description, price, category, stock, imageUrl } = req.body;
+        const newProduct = new Product({ name, description, price, category, stock, imageUrl });
         await newProduct.save();
         res.status(201).json({ message: 'Producto creado correctamente' });
     } catch (error) {
-        res.status(500).json({ error: 'Ha ocurrido un error al crear el producto' });
+        res.status(500).json({ error: "Error al crear el producto" });
     }
 
 };
@@ -17,7 +17,7 @@ const createProduct = async (req, res) => {
 
 const getProducts = async (req, res) => {
     try {
-        const products = await Prduct.find();
+        const products = await Product.find();
         res.json(products);
     } catch (error) {
         res.status(500).json({ error: 'Error al obtener los productos' });
@@ -27,7 +27,7 @@ const getProducts = async (req, res) => {
 //Obtener producto por id
 const getProductById = async (req, res) => {
     try {
-        const product = await Prduct.findById(req.params.id);
+        const product = await Product.findById(req.params.id);
         res.json(product);
     } catch (error) {
         res.status(500).json({ error: 'Error al obtener el producto' });
@@ -38,12 +38,12 @@ const getProductById = async (req, res) => {
 const updateProduct = async (req, res) => { 
     try {
         const { name, description, price, category, stock, imageUrl } = req.body;
-        const updatedProduct = await Prduct.findByIdAndUpdate(
+        const updatedProduct = await Product.findByIdAndUpdate(
             req.params.id,
             { name, description, price, category, stock, imageUrl },
             { new: true }
         );
-        res.json(updatedProduct);
+        res.status(201).json({ message: 'Producto actualizado correctamente' });
     } catch (error) {
         res.status(500).json({ error: 'Error al actualizar el producto' });
     }
@@ -52,7 +52,7 @@ const updateProduct = async (req, res) => {
 //Eliminar producto
 const deleteProduct = async (req, res) => {
     try {
-        await Prduct.findByIdAndDelete(req.params.id);
+        await Product.findByIdAndDelete(req.params.id);
         res.json({ message: 'Producto eliminado correctamente' });
     } catch (error) {
         res.status(500).json({ error: 'Error al eliminar el producto' });

@@ -5,7 +5,7 @@ import { deepOrange } from "@mui/material/colors";
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import Logo from "../assets/LogoMenu.svg";
 import { jwtDecode } from "jwt-decode";
-import {useNavigate} from 'react-router-dom';
+import {useNavigate, Link} from 'react-router-dom';
 
 export default function Navbar() {
 
@@ -31,10 +31,13 @@ export default function Navbar() {
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           <Box sx={{ display: "flex", alignItems: "center", flexGrow: 0.01 }}>
-            <img src={Logo} alt="Logo" width="50" height="50" />
+            <Link to="/">
+              <img src={Logo} alt="Logo" width="50" height="50" href="/" />
+            </Link>
             <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-              Store
+                Store
             </Typography>
+            
           </Box>
 
           {User == null ? (
@@ -56,13 +59,14 @@ export default function Navbar() {
                   href="/products"
                   sx={{ my: 2, color: 'white', display: 'block', textDecoration: 'underline' }}
               >
-                Productos
+                Agregar Productos
               </Button>
               
             </Box>
             <Box sx={{flexGrow: 1, display: "flex", justifyContent: "flex-end"}}>
-              <Tooltip title = "setting user">
+              <Tooltip title = "Configuración de usuario" >
                 <IconButton sx={{p:0}} onClick={(e) => setAnchorEl(e.currentTarget)}>
+                  {console.log(User.profileImageUrl)}
                   {User.profileImageUrl  ? (
                     <Avatar src={User.profileImageUrl} alt={User.name} />
                   ):(

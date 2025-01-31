@@ -20,8 +20,8 @@ connectDB();
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use('/usuario', routerUser);
-app.use('/producto', routerProduct);
+app.use('/usuarios', routerUser);
+app.use('/productos', routerProduct);
 
 server.listen(process.env.PORT, () => {
     console.log(`Servidor corriendo en http://localhost:${process.env.PORT}`);

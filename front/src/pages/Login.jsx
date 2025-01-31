@@ -58,7 +58,7 @@ export default function Login(){
 
     const handleLogin = async () => {
       try {
-        const response = await axios.post('http://localhost:3000/usuario/login', { email, password });
+        const response = await axios.post('http://localhost:3000/usuarios/login', { email, password });
         localStorage.setItem('token', response.data.token);
         navigate('/');
       } catch (error) {
@@ -102,13 +102,13 @@ export default function Login(){
               </Link>
             Bienvenido
           </Typography>
-          <TextField 
+          <TextField required
             label="Email"
             variant="outlined"
             value={email}
             onChange={handleEmail}
           />
-          <TextField 
+          <TextField required
             label="Password"
             variant="outlined"
             type={showPassword ? 'text' : 'password'}
